@@ -4,6 +4,7 @@ const app = express();
 const router = express.Router();
 const mysql = require('mysql');
 const bcrypt = require('bcrypt');
+const { create } = require('domain');
 
 
 //db baglantisi
@@ -69,7 +70,7 @@ const login=async(req,res) =>{
       })
     }
   })
-}
+};
 
 //router ve app kavramlari
 router.post("/register",register); //varolan degiskenin atandigi bir endpoint
@@ -78,10 +79,13 @@ app.get('/endpoint', (req,res) => {
   res.send('merhaba bu YENI bir endpoint');
 });
 
+
+
+
 //Middlewares
 const PORT = 3000;
 app.use(express.json({limit:'50mb',extended:true,parameterLimit:50000}));
 app.use('/api',router);
 app.listen(PORT);
 
-module.exports={register,dbConn,login};
+module.exports={register,dbConn,login,katalog};
