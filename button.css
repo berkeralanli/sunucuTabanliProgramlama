@@ -1,0 +1,28 @@
+/* Temel düğme stilleri */
+.btn {
+  padding: 10px 20px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+/* Ana düğme rengi */
+.btn-primary {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}
+
+/* Hover efekti */
+.btn:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+
+
+
+
+
