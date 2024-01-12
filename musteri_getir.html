@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/css/adminlte.min.css" integrity="sha512-IuO+tczf4J43RzbCMEFggCWW5JuX78IrCJRFFBoQEXNvGI6gkUw4OjuwMidiS4Lm9Q2lILzpJwZuMWuSEeT9UQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/admin-lte/3.2.0/js/adminlte.min.js" integrity="sha512-KBeR1NhClUySj9xBB0+KRqYLPkM6VvXiiWaSz/8LCQNdRpUm38SWUrj0ccNDNSkwCD9qPA4KobLliG26yPppJA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.js" integrity="sha512-+k1pnlgt4F1H8L7t3z95o3/KO+o78INEcXTbnoJQ/F2VqDVhWoaiVml/OEHv9HsVgxUaVW+IbiZPUJQfF/YxZw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js" integrity="sha512-BkpSL20WETFylMrcirBahHfSnY++H2O1W+UnEEO4yNIl+jI2+zowyoGJpbtk6bx97fBXf++WJHSSK2MV4ghPcg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/jquery.dataTables.min.css" integrity="sha512-1k7mWiTNoyx2XtmI96o+hdjP8nn0f3Z2N4oF/9ZZRgijyV4omsKOXEnqL1gKQNPy2MTSP9rIEWGcH/CInulptA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    
+    <script>
+        $(document).ready(function(){
+           var table=$("#musteriler_tablo").DataTable({
+            searching:false,
+            lengthChange:false,
+            info:false,
+            scrollX:true,
+            fixedHeader:true,
+            paging:true,
+            ajax:{
+                url:"http://localhost:3000/api/musteri_getir",
+                type:"GET",
+                dataSrc:'data'
+            },
+            columns:[
+                {data:"username"},
+                {data:"password"},
+                {data:"eposta"},
+               {
+                data:null,
+                render:function(data,type,row){
+                    return '<button id="delete-button" class="btn btn-danger" data-id="'+data.ID+'" >Sil</button>'
+                }
+                },{
+                data:null,
+                render:function(data,type,row){
+                    return '<button id="update-button" class="btn btn-warning" data-id="'+data.ID+'" >Güncelle</button>'
+                }
+                }
+            ]
+           })
+
+           $("#musteriler_tablo tbody").on('click','#delete-button',function(){
+            var data=table.row($(this).closest('tr')).data()
+            var eposta=data.eposta
+                $.ajax({
+                    url:`/api/musteri_sil/${eposta}`,
+                    type:"DELETE",
+                    success:function(data){
+                        console.log(data)
+                    },
+                    error:function(error){
+                        console.log(error)
+                    }
+                })
+           })
+           $(".close").click(function(){
+            $("#musteriGuncelleModal").css("display","none");
+        });
+           $("#musteriler_tablo tbody").on('click','#update-button',function(){
+            var data=table.row($(this).closest('tr')).data()
+            $("#musteriGuncelleModal").css("display","block")
+            console.log(data)
+            $("#username_modal").val(data.username)
+            $("#password_modal").val(data.password)
+            $("#eposta_modal").val(data.eposta)        
+           })
+          $("#musteri_guncelle_modal_button").click(function(){
+            const eposta=$("#eposta_modal").val()
+            const guncel_musteri={
+                    username:$("#username_modal").val(),
+                    password:$("#password_modal").val(),
+                    
+                }
+            console.log(eposta)
+            console.log(guncel_musteri)
+            $.ajax({
+                    url:`http://localhost:3000/api/musteri_guncelle/${eposta}`,
+                    type:"PUT",
+                    contentType:"application/json",
+                    data:JSON.stringify(guncel_musteri),
+                    success:function(data){
+                        console.log(data)
+                        location.reload()
+                    },
+                    error:function(error){
+                        console.log(error)
+                    }
+                })
+          }) 
+        })
+    </script>
+</head>
+<body class="hold-transition sidebar-mini">
+    <div class="wrapper">
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <ul class="navbar-nav">
+                <li class="navbar-item"> 
+                    <a class="navbar-link" data-widget="pushmenu" href="#" role="button"><i  class="fas fa-bars"></i></a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="control-sidebar" data-slide="true" role="button">
+                        <span id="geri">Çıkış</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <a href="#" class="brand-link">
+                <span class="brand-text font-weight-light">Müşteri Admin Panel</span>
+            </a>
+       
+        <div class="sidebar">
+            <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                <div class="info">
+                    <a href="#" class="d-block">
+                        <span id="kullanici_eposta">canaydinn@gmail.com</span>
+                    </a>
+                </div>
+            </div>
+            <nav class="mt-2">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                    <li class="nav-item"> 
+                        <a href="" class="nav-link">
+                            <i class="nav-icon fas fa-tachometre-alt"></i>
+                            <p>Müşteri Getir</p>
+                            <span class="badge badge-info right">15</span>
+                        </a>
+                    </li>
+                    <li class="nav-item"> 
+                        <a href="" class="nav-link">
+                            <i class="nav-icon fas fa-tachometre-alt"></i>
+                            <p>Müşteri Ekle</p>
+                            <span class="badge badge-info right">15</span>
+                        </a>
+                    </li>
+                    <li class="nav-item"> 
+                        <a href="" class="nav-link">
+                            <i class="nav-icon fas fa-tachometre-alt"></i>
+                            <p>Müşteri Sil</p>
+                            <span class="badge badge-info right">15</span>
+                        </a>
+                    </li>
+                    <li class="nav-item"> 
+                        <a href="" class="nav-link">
+                            <i class="nav-icon fas fa-tachometre-alt"></i>
+                            <p>Müşteri Güncelle</p>
+                            <span class="badge badge-info right">15</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </aside>
+    <div class="content-wrapper">
+        <section class="content">
+            <h1>Müşteriler</h1>
+            <table id="musteriler_tablo" class="table table-striped" style="width:100%">
+                <thead>
+                    <tr>
+                    <th>Kullanıcı Adı</th>
+                    <th>Şifre</th>
+                    <th>Eposta</th>
+                    <th></th>
+                    <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </section>
+    </div>
+    <div class="modal" tabindex="-1" role="dialog" id="musteriGuncelleModal">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Müşteri Güncelle</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+            <!-- <div class="mb-3-row">
+                <label class="col-sm-2 col-form-label">ID</label>
+                <div class="col-sm-10">
+                    <label id="kayit_id"></label>
+                </div>
+            </div> -->
+            <div class="mb-3-row">
+                <label class="col-sm-2 col-form-label">Kullanıcı Adı</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="username_modal">
+                </div>
+            </div>
+            <div class="mb-3-row">
+                <label class="col-sm-2 col-form-label">Şifre</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="password_modal">
+                </div>
+            </div>
+            <div class="mb-3-row">
+                <label class="col-sm-2 col-form-label">Eposta</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="eposta_modal">
+                </div>
+            </div>
+          
+            <div class="mb-3-row">
+                <label class="col-sm-2 col-form-label">Adı</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="adi_modal">
+                </div>
+            </div>
+            <div class="mb-3-row">
+                <label class="col-sm-2 col-form-label">Soyadı</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="soyadi_modal">
+                </div>
+            </div>
+            <div class="mb-3-row">
+                <label class="col-sm-2 col-form-label">Telefon No</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="telefon_no_modal">
+                </div>
+            </div>
+            <div class="mb-3-row">
+                <label class="col-sm-2 col-form-label">Cinsiyet</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="cinsiyet_modal">
+                </div>
+            </div>
+            <div class="mb-3-row">
+                <label class="col-sm-2 col-form-label">Doğum Tarihi</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="dogum_tarihi_modal">
+                </div>
+            </div>
+    
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" id="musteri_guncelle_modal_button">Güncelle</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal" id="close">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    <footer class="main-footer">
+        <div class="float-right d-none d-sm-block">
+            <b>Versiyon 1.0</b>
+        </div>
+        <strong>Copyright 2023<a href=""#>Müşteri Admin Panel</a></strong>
+    </footer>
+    </div>
+</body>
+</html>
